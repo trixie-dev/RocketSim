@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class TrajectoryRenderer : MonoBehaviour
+public class Trajectory : MonoBehaviour
 {
     private LineRenderer lineRendererComponent;
 
@@ -14,6 +12,7 @@ public class TrajectoryRenderer : MonoBehaviour
     public void ShowTrajectory(Vector3 origin, Vector3 speed)
     {
         Vector3[] points = new Vector3[1000];
+
         lineRendererComponent.positionCount = points.Length;
 
         for (int i = 0; i < points.Length; i++)
@@ -22,7 +21,7 @@ public class TrajectoryRenderer : MonoBehaviour
 
             points[i] = origin + speed * time + Physics.gravity * time * time / 2f;
 
-            if(points[i].y < 0)
+            if(points[i].y < 0 )
             {
                 lineRendererComponent.positionCount = i+1;
                 break;
