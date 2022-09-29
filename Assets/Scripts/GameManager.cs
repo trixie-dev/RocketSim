@@ -4,6 +4,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
     public Trajectory trajectory;
+    public Explosion explosionScript;
     public HUD HUD;
     private void Awake()
     {

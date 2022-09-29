@@ -31,4 +31,8 @@ public class Trajectory : MonoBehaviour
         lineRendererComponent.SetPositions(points);
     }
 
+    public void DestroyTrajectory(){
+        Destroy(gameObject);
+    }
+
 }

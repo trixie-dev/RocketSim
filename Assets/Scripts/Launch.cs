@@ -1,18 +1,19 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Launch : MonoBehaviour
 {
     private Rigidbody rb;
+    public ParticleSystem explosivePS;
+    public float forceExplosion;
+    public float radiusExplosion;
     
-    [SerializeField] private float force;
     [SerializeField] private GameObject direct;
     public float time = 0f;
     private bool isLaunched = false;
 
     private Trajectory trajectory;
-    private TrajectoryData tData = new TrajectoryData{};
+    private Explosion explosionScript;
+    public TrajectoryData tData = new TrajectoryData{};
     private HUD HUD;
     public LayerMask CheckMask;
 
@@ -20,27 +21,43 @@ public class Launch : MonoBehaviour
 
         rb = GetComponent<Rigidbody>();
         trajectory = GameManager.instance.trajectory;
+        explosionScript = GetComponent<Explosion>();
         HUD = GameManager.instance.HUD;
         rb.useGravity = false;
 
-        FixedTrajectoryValues();
+        
         
     }
 
     private void Update(){
+        
         if(Physics.CheckSphere(direct.transform.position, 0.4f, CheckMask)){
             isLaunched = false;
             HUD.NoSignalPanel.GetComponent<CanvasGroup>().alpha = 1;
-            //Destroy(gameObject);
+            Instantiate(explosivePS, direct.transform.position, Quaternion.identity);
+            explosivePS.Play();
+            explosionScript.Explode(direct.transform, forceExplosion, radiusExplosion);
+            Destroy(gameObject);
+            trajectory.DestroyTrajectory();
         }
         if(Input.GetKeyDown(KeyCode.Space)){
-            LaunchObj(force);
+            LaunchObj(tData.force);
         }
         if(isLaunched){
             time += Time.deltaTime;
             RotateToTrajectory(time+0.5f);
         }
-        
+        else{
+            if(tData.force != HUD.force.value){
+                tData.force = HUD.force.value;
+                FixedTrajectoryValues();
+            }
+            else if(transform.localEulerAngles.x != HUD.vAngel.value ||
+                    transform.localEulerAngles.y != HUD.hAngel.value) {
+                transform.localEulerAngles = new Vector3(HUD.vAngel.value, HUD.hAngel.value, transform.localEulerAngles.z);
+                FixedTrajectoryValues();
+            }
+        }
         // updating HUD information
         HUD.speed.text = "Speed: " + ((int)rb.velocity.magnitude).ToString() + " km/h";
         HUD.alt.text = "Alt: " + ((int)transform.position.y).ToString() + " m";
@@ -62,7 +79,7 @@ public class Launch : MonoBehaviour
         tData.objPosition = transform.position;
         tData.directPosition = direct.transform.position;
         tData.rotation = transform.localEulerAngles;
-        tData.speed = (tData.directPosition - tData.objPosition) * force;
+        tData.speed = (tData.directPosition - tData.objPosition) * tData.force;
         trajectory.ShowTrajectory(tData.objPosition, tData.speed);
     }
 
