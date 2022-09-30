@@ -24,7 +24,7 @@ public class Rocket : MonoBehaviour
         trajectory = GameManager.instance.trajectory;
         explosionScript = GetComponent<Explosion>();
         HUD = GameManager.instance.HUD;
-        HUD.launcherCoordinate.text = "launcher's coordinate: " + String(transform.position.x) + " x, " + String(transform.position.z) + " y";
+        HUD.launcherCoordinate.text = "own's coordinate: " + String(transform.position.x) + " x, " + String(transform.position.z) + " y";
         rb.useGravity = false;
 
         
@@ -51,20 +51,16 @@ public class Rocket : MonoBehaviour
             if(showTrajectory) trajectory.ShowTrajectoryByTime(tData.objPosition, tData.speed, time);
         }
         else{
-            if(tData.force != HUD.force.value){
-                tData.force = HUD.force.value;
-                FixedTrajectoryValues();
-            }
-            else if(transform.localEulerAngles.x != HUD.vAngle.value ||
+            if(transform.localEulerAngles.x != HUD.vAngle.value ||
                     transform.localEulerAngles.y != HUD.hAngle.value) {
                 transform.localEulerAngles = new Vector3(HUD.vAngle.value, HUD.hAngle.value, transform.localEulerAngles.z);
                 FixedTrajectoryValues();
             }
         }
         // updating HUD information
-        HUD.speed.text = "Speed: " + String(rb.velocity.magnitude) + " km/h";
-        HUD.alt.text = "Alt: " + String(transform.position.y) + " m";
-        HUD.currTime.text = "Time: " + String(time) + " s";
+        HUD.speed.text = String(rb.velocity.magnitude) + " km/h";
+        HUD.alt.text = String(transform.position.y) + " m";
+        HUD.currTime.text = String(time) + " s";
     }   
     private void RotateToTrajectory(float time){
 

@@ -10,7 +10,7 @@ public class HUD : MonoBehaviour
     public GameObject NoSignalPanel;
 
     //control panel
-    public Slider force, hAngle, vAngle;
+    public Slider hAngle, vAngle;
     public Text forceText, hAngelText, vAngelText;
 
     // camera drone
