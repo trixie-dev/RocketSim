@@ -3,9 +3,25 @@ using UnityEngine.UI;
 
 public class HUD : MonoBehaviour
 {
-    public Text speed, alt, time;
+    public Text launcherCoordinate;
+    public Toggle showTrajectory;
+    // missle information
+    public Text speed, alt, currTime;
     public GameObject NoSignalPanel;
-    public Slider force, hAngel, vAngel;
-    public Text droneAlt, distance, coordinate, cross;
 
+    //control panel
+    public Slider force, hAngle, vAngle;
+    public Text forceText, hAngelText, vAngelText;
+
+    // camera drone
+    public Text droneAlt, droneDistance, coordinate, cross;
+    public Slider zoom;
+
+    // start information panel
+    public Text distance, maxAlt, time;
+
+    private void Update(){
+        hAngelText.text = ((int)hAngle.value).ToString() + "°";
+        vAngelText.text = ((int)-vAngle.value).ToString() + "°";
+    }
 }

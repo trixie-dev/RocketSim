@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Launch : MonoBehaviour
+public class Rocket : MonoBehaviour
 {
     private Rigidbody rb;
     public ParticleSystem explosivePS;
@@ -12,6 +12,7 @@ public class Launch : MonoBehaviour
     private bool isLaunched = false;
 
     private Trajectory trajectory;
+    public bool showTrajectory;
     private Explosion explosionScript;
     public TrajectoryData tData = new TrajectoryData{};
     private HUD HUD;
@@ -23,6 +24,7 @@ public class Launch : MonoBehaviour
         trajectory = GameManager.instance.trajectory;
         explosionScript = GetComponent<Explosion>();
         HUD = GameManager.instance.HUD;
+        HUD.launcherCoordinate.text = "launcher's coordinate: " + String(transform.position.x) + " x, " + String(transform.position.z) + " y";
         rb.useGravity = false;
 
         
@@ -30,7 +32,7 @@ public class Launch : MonoBehaviour
     }
 
     private void Update(){
-        
+        showTrajectory = HUD.showTrajectory.isOn;
         if(Physics.CheckSphere(direct.transform.position, 0.4f, CheckMask)){
             isLaunched = false;
             HUD.NoSignalPanel.GetComponent<CanvasGroup>().alpha = 1;
@@ -41,38 +43,40 @@ public class Launch : MonoBehaviour
             trajectory.DestroyTrajectory();
         }
         if(Input.GetKeyDown(KeyCode.Space)){
-            LaunchObj(tData.force);
+            LaunchObj();
         }
         if(isLaunched){
             time += Time.deltaTime;
             RotateToTrajectory(time+0.5f);
+            if(showTrajectory) trajectory.ShowTrajectoryByTime(tData.objPosition, tData.speed, time);
         }
         else{
             if(tData.force != HUD.force.value){
                 tData.force = HUD.force.value;
                 FixedTrajectoryValues();
             }
-            else if(transform.localEulerAngles.x != HUD.vAngel.value ||
-                    transform.localEulerAngles.y != HUD.hAngel.value) {
-                transform.localEulerAngles = new Vector3(HUD.vAngel.value, HUD.hAngel.value, transform.localEulerAngles.z);
+            else if(transform.localEulerAngles.x != HUD.vAngle.value ||
+                    transform.localEulerAngles.y != HUD.hAngle.value) {
+                transform.localEulerAngles = new Vector3(HUD.vAngle.value, HUD.hAngle.value, transform.localEulerAngles.z);
                 FixedTrajectoryValues();
             }
         }
         // updating HUD information
-        HUD.speed.text = "Speed: " + ((int)rb.velocity.magnitude).ToString() + " km/h";
-        HUD.alt.text = "Alt: " + ((int)transform.position.y).ToString() + " m";
-        HUD.time.text = "Time: " + ((int)time).ToString() + " s";
+        HUD.speed.text = "Speed: " + String(rb.velocity.magnitude) + " km/h";
+        HUD.alt.text = "Alt: " + String(transform.position.y) + " m";
+        HUD.currTime.text = "Time: " + String(time) + " s";
     }   
     private void RotateToTrajectory(float time){
+
         Vector3 position = tData.objPosition + tData.speed * time + Physics.gravity * time * time / 2f;
         transform.LookAt(position);
     }
     
-    private void LaunchObj(float force){
+    public void LaunchObj(){
         isLaunched = true;
         rb.useGravity = true;
         Vector3 direction = tData.directPosition - tData.objPosition;
-        rb.AddForce(direction*force, ForceMode.VelocityChange);
+        rb.AddForce(direction*tData.force, ForceMode.VelocityChange);
     }
 
     public void FixedTrajectoryValues(){
@@ -80,7 +84,23 @@ public class Launch : MonoBehaviour
         tData.directPosition = direct.transform.position;
         tData.rotation = transform.localEulerAngles;
         tData.speed = (tData.directPosition - tData.objPosition) * tData.force;
-        trajectory.ShowTrajectory(tData.objPosition, tData.speed);
+        HUD.forceText.text = String(tData.speed.magnitude) + "km/h";
+        if(showTrajectory) trajectory.ShowStartTrajectory(tData.objPosition, tData.speed);
+        CalcStartData();
     }
 
+    public void CalcStartData(){
+
+        float distance = Mathf.Pow(tData.speed.magnitude, 2)*Mathf.Sin(2*-tData.rotation.x*Mathf.PI/180)/-Physics.gravity.y;
+        float maxAlt = (Mathf.Pow(tData.speed.magnitude, 2) * Mathf.Pow(Mathf.Sin(-tData.rotation.x*Mathf.PI/180), 2)/-2*Physics.gravity.y/100f)+tData.objPosition.y;
+        float time = 2 * tData.speed.magnitude*Mathf.Sin(-tData.rotation.x*Mathf.PI/180)/-Physics.gravity.y;
+
+        HUD.distance.text = distance.ToString();
+        HUD.maxAlt.text = maxAlt.ToString();
+        HUD.time.text = time.ToString();
+    }
+
+    private string String(float num){
+        return ((int)num).ToString();
+    }
 }

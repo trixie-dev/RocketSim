@@ -5,16 +5,22 @@ using UnityEngine;
 public class DroneCamera : MonoBehaviour
 {
     public Vector3 pOffset;
-    private bool isFocused = false;
+    private Camera droneCamera;
+    public bool isFocused = false;
     public float rotateSpeed;
     private HUD HUD;
-    // Update is called once per frame
+    private ButtonScript button;
+    
+    
     private void Start() {
         HUD = GameManager.instance.HUD;
+        droneCamera = GetComponent<Camera>();
+        button = GetComponent<ButtonScript>();
 
     }
     void Update()
     {
+        droneCamera.fieldOfView = HUD.zoom.value;
         HUD.droneAlt.text = "Alt: " + ((int)transform.position.y).ToString() + "m";
         InvokeRepeating("ChangePosition", 0, 3f);
         if(Input.GetKeyDown(KeyCode.F) && isFocused) isFocused = false;
@@ -23,7 +29,7 @@ public class DroneCamera : MonoBehaviour
         focus(isFocused);
         if(isFocused == false) {
             HUD.coordinate.text = "Coordinate: -- x, -- y";
-            HUD.distance.text = "Distance: -- m";
+            HUD.droneDistance.text = "Distance: -- m";
             HUD.cross.color = new Color(0.2f, 0.2f, 0.2f);
         }
         float x = Input.GetAxis("Horizontal");
@@ -39,7 +45,7 @@ public class DroneCamera : MonoBehaviour
         transform.position = Vector3.Slerp(transform.position, newPos, 3f);
     }
 
-    private Vector3 SetFocus(){
+    public Vector3 SetFocus(){
         Ray ray = new Ray(transform.position, transform.forward * 1000);
         Debug.DrawLine(transform.position, transform.position + transform.forward * 1000, Color.red);
 
@@ -47,19 +53,30 @@ public class DroneCamera : MonoBehaviour
         if(Physics.Raycast(ray, out hit, 1000))
             HUD.cross.color = new Color(1f, 0f, 0f);
             HUD.coordinate.text = "Coordinate: " + ((int)hit.transform.position.x).ToString() + " x, " + ((int)hit.transform.position.z).ToString() + " y";
-            HUD.distance.text = "Distance: " + ((int)hit.distance).ToString() + " m";
+            HUD.droneDistance.text = "Distance: " + ((int)hit.distance).ToString() + " m";
             return hit.transform.position;
-        //return Vector3.zero;
+        
 
     }
-    private void focus(bool isFocused){
+    public void focus(bool isFocused){
         if(isFocused) {
             Vector3 position = SetFocus();
             if(position != Vector3.zero) 
                 transform.LookAt(position);
                 
         }
+    }
+    public void CamRotate(string direction){
+        float x = 0, y = 0;
         
-        
+        if(direction == "left") x = -1;
+        else if(direction == "right") x = 1;
+        else if(direction == "up") y = -1;
+        else if(direction == "down") y = 1;
+        transform.Rotate(0, rotateSpeed*x, 0);
+        transform.Rotate(rotateSpeed*y, 0, 0);
+    }
+    public void ChangeFocusStatus(){
+        isFocused = !isFocused;
     }
 }

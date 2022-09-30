@@ -26,8 +26,8 @@ public class Target : MonoBehaviour
         smoke = Instantiate(smoke, new Vector3(transform.position.x, transform.position.y, transform.position.z), Quaternion.Euler(-90, 0, 0));
         updatingPosition = true;
         float k = transform.localScale.x * transform.localScale.y * transform.localScale.z / capacity;
-        fire.transform.localScale = new Vector3(fire.transform.localScale.x*k, fire.transform.localScale.y*k, fire.transform.localScale.z*k);
-        smoke.transform.localScale = new Vector3(smoke.transform.localScale.x*k, smoke.transform.localScale.y*k, smoke.transform.localScale.z*k);
+        fire.transform.localScale = new Vector3(30f*k, 30f*k, 30f*k);
+        smoke.transform.localScale = new Vector3(30f*k, 30f*k, 30f*k);
         fire.Play();
         smoke.Play();
     }
