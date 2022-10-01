@@ -9,7 +9,7 @@ public class Rocket : MonoBehaviour
     
     [SerializeField] private GameObject direct;
     public float time = 0f;
-    private bool isLaunched = false;
+    public bool isLaunched = false;
 
     private Trajectory trajectory;
     public bool showTrajectory;
@@ -26,41 +26,58 @@ public class Rocket : MonoBehaviour
         HUD = GameManager.instance.HUD;
         HUD.launcherCoordinate.text = "own's coordinate: " + String(transform.position.x) + " x, " + String(transform.position.z) + " y";
         rb.useGravity = false;
-
-        
-        
+    
     }
 
     private void Update(){
+
         showTrajectory = HUD.showTrajectory.isOn;
+
         if(Physics.CheckSphere(direct.transform.position, 0.4f, CheckMask)){
+
             isLaunched = false;
+
+            HUD.rocketCount.text = (GameManager.instance.rocketCount - 1).ToString();
+            HUD.speed.text = "--";
+            HUD.speed.color = Color.red;
+            HUD.alt.text = "--";
+            HUD.alt.color = Color.red;
+            HUD.currTime.text = "--";
+            HUD.currTime.color = Color.red;
             HUD.NoSignalPanel.GetComponent<CanvasGroup>().alpha = 1;
+
             Instantiate(explosivePS, direct.transform.position, Quaternion.identity);
             explosivePS.Play();
             explosionScript.Explode(direct.transform, forceExplosion, radiusExplosion);
             Destroy(gameObject);
             trajectory.DestroyTrajectory();
+
         }
-        if(Input.GetKeyDown(KeyCode.Space)){
+        if(Input.GetKeyDown(KeyCode.Space))
             LaunchObj();
-        }
+        
         if(isLaunched){
+
+            if(showTrajectory) trajectory.ShowTrajectoryByTime(tData.objPosition, tData.speed, time);
             time += Time.deltaTime;
             RotateToTrajectory(time+0.5f);
-            if(showTrajectory) trajectory.ShowTrajectoryByTime(tData.objPosition, tData.speed, time);
+
         }
         else{
+
             if(transform.localEulerAngles.x != HUD.vAngle.value ||
-                    transform.localEulerAngles.y != HUD.hAngle.value) {
+                transform.localEulerAngles.y != HUD.hAngle.value) {
+
                 transform.localEulerAngles = new Vector3(HUD.vAngle.value, HUD.hAngle.value, transform.localEulerAngles.z);
                 FixedTrajectoryValues();
+
             }
         }
         // updating HUD information
         HUD.speed.text = String(rb.velocity.magnitude) + " km/h";
         HUD.alt.text = String(transform.position.y) + " m";
-        HUD.currTime.text = String(time) + " s";
+        HUD.currTime.text = time.ToString() + " s";
+
     }   
     private void RotateToTrajectory(float time){
 
@@ -69,13 +86,16 @@ public class Rocket : MonoBehaviour
     }
     
     public void LaunchObj(){
+
         isLaunched = true;
         rb.useGravity = true;
         Vector3 direction = tData.directPosition - tData.objPosition;
         rb.AddForce(direction*tData.force, ForceMode.VelocityChange);
+        
     }
 
     public void FixedTrajectoryValues(){
+
         tData.objPosition = transform.position;
         tData.directPosition = direct.transform.position;
         tData.rotation = transform.localEulerAngles;
@@ -83,6 +103,7 @@ public class Rocket : MonoBehaviour
         HUD.forceText.text = String(tData.speed.magnitude) + "km/h";
         if(showTrajectory) trajectory.ShowStartTrajectory(tData.objPosition, tData.speed);
         CalcStartData();
+
     }
 
     public void CalcStartData(){
@@ -94,7 +115,9 @@ public class Rocket : MonoBehaviour
         HUD.distance.text = distance.ToString();
         HUD.maxAlt.text = maxAlt.ToString();
         HUD.time.text = time.ToString();
+
     }
+
 
     private string String(float num){
         return ((int)num).ToString();

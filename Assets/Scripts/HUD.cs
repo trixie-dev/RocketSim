@@ -20,8 +20,13 @@ public class HUD : MonoBehaviour
     // start information panel
     public Text distance, maxAlt, time;
 
+    // missiles panel
+    public Text rocketCount;
+    private void Start(){
+        rocketCount.text = GameManager.instance.rocketCount.ToString();   
+    }
     private void Update(){
-        hAngelText.text = ((int)hAngle.value).ToString() + "°";
-        vAngelText.text = ((int)-vAngle.value).ToString() + "°";
+        hAngelText.text = (hAngle.value).ToString() + "°";
+        vAngelText.text = (-vAngle.value).ToString() + "°";
     }
 }
