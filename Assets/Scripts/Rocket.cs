@@ -73,12 +73,9 @@ public class Rocket : MonoBehaviour
         else{
 
             if(transform.localEulerAngles.x != HUD.vAngle.value ||
-                transform.localEulerAngles.y != HUD.hAngle.value) {
-
-                transform.localEulerAngles = new Vector3(HUD.vAngle.value, HUD.hAngle.value, transform.localEulerAngles.z);
+                transform.localEulerAngles.y != HUD.hAngle.value)
                 FixedTrajectoryValues();
 
-            }
         }
         // updating HUD information
         HUD.speed.text = String(rb.velocity.magnitude) + " km/h";
@@ -96,6 +93,8 @@ public class Rocket : MonoBehaviour
 
         isLaunched = true;
         rb.useGravity = true;
+        PlayerCamera playerCamera = GameManager.instance.playerCamera;
+        playerCamera.preLaunchRotation = new Vector3(0f, transform.localEulerAngles.y, 0f);
         Vector3 direction = tData.directPosition - tData.objPosition;
         rb.AddForce(direction*tData.force, ForceMode.VelocityChange);
         
@@ -105,7 +104,7 @@ public class Rocket : MonoBehaviour
 
         tData.objPosition = transform.position;
         tData.directPosition = direct.transform.position;
-        tData.rotation = transform.localEulerAngles;
+        tData.vRotation = -HUD.vAngle.value;
         tData.speed = (tData.directPosition - tData.objPosition) * tData.force;
         HUD.forceText.text = String(tData.speed.magnitude) + "km/h";
         if(showTrajectory) trajectory.ShowStartTrajectory(tData.objPosition, tData.speed);
@@ -115,9 +114,9 @@ public class Rocket : MonoBehaviour
 
     public void CalcStartData(){
 
-        float distance = Mathf.Pow(tData.speed.magnitude, 2)*Mathf.Sin(2*-tData.rotation.x*Mathf.PI/180)/-Physics.gravity.y;
-        float maxAlt = (Mathf.Pow(tData.speed.magnitude, 2) * Mathf.Pow(Mathf.Sin(-tData.rotation.x*Mathf.PI/180), 2)/-2*Physics.gravity.y/100f)+tData.objPosition.y;
-        float time = 2 * tData.speed.magnitude*Mathf.Sin(-tData.rotation.x*Mathf.PI/180)/-Physics.gravity.y;
+        float distance = Mathf.Pow(tData.speed.magnitude, 2)*Mathf.Sin(2*-tData.vRotation*Mathf.PI/180)/-Physics.gravity.y;
+        float maxAlt = (Mathf.Pow(tData.speed.magnitude, 2) * Mathf.Pow(Mathf.Sin(-tData.vRotation*Mathf.PI/180), 2)/-2*Physics.gravity.y/100f)+tData.objPosition.y;
+        float time = 2 * tData.speed.magnitude*Mathf.Sin(-tData.vRotation*Mathf.PI/180)/-Physics.gravity.y;
 
         HUD.distance.text = distance.ToString();
         //HUD.maxAlt.text = maxAlt.ToString();
@@ -132,16 +131,20 @@ public class Rocket : MonoBehaviour
     }
 
     private float CalcStartTime(){
+        
         if(drone.isFocused){
             float ownHeight = transform.position.y;
             float targetHeight = drone.targetHeight;
-            float sinA = Mathf.Sin(-tData.rotation.x * Mathf.PI / 180f);
+            float sinA = Mathf.Sin(tData.vRotation * Mathf.PI / 180f);
             float v0 = tData.speed.magnitude;
             float g = - Physics.gravity.y;
             float result;
 
-            if(ownHeight > targetHeight)
+            if(ownHeight > targetHeight){
                 result = (v0 * sinA + Mathf.Sqrt(Mathf.Pow(v0, 2) * Mathf.Pow(sinA, 2) + Mathf.Abs(2 * g * (ownHeight - targetHeight)))) / g;
+                print(sinA);
+            }
+                
             else
                 result = (v0 * sinA + Mathf.Sqrt(Mathf.Pow(v0, 2) * Mathf.Pow(sinA, 2) - Mathf.Abs(2 * g * (ownHeight - targetHeight)))) / g;
             
@@ -176,7 +179,7 @@ public class Rocket : MonoBehaviour
     private float CalcStartDistance(){
         float time = CalcStartTime();
         if(drone.isFocused && time != -1488f){
-            float result = tData.speed.magnitude * Mathf.Cos(-tData.rotation.x * Mathf.PI / 180f) * time;
+            float result = tData.speed.magnitude * Mathf.Cos(-tData.vRotation * Mathf.PI / 180f) * time;
             return result;
         }
         return -1488;

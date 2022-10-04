@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
     public DroneCamera drone;
     public Trajectory trajectory;
     public Explosion explosionScript;
+    public PlayerCamera playerCamera;
     public HUD HUD;
     public int rocketCount;
     public int rocketsNumbers;

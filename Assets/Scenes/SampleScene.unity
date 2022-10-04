@@ -1591,8 +1591,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 381449714}
-  m_LocalRotation: {x: 0, y: 0.074369594, z: -0, w: 0.99723077}
-  m_LocalPosition: {x: -1.4639176, y: 0, z: -22.518082}
+  m_LocalRotation: {x: 0, y: 0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 7.08}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 543450653497128181}
@@ -3146,6 +3146,7 @@ MonoBehaviour:
   drone: {fileID: 2017729435}
   trajectory: {fileID: 658440641}
   explosionScript: {fileID: 919132149223140945}
+  playerCamera: {fileID: 963194229}
   HUD: {fileID: 568588846}
   rocketCount: 1
   rocketsNumbers: 0
@@ -4003,7 +4004,8 @@ MonoBehaviour:
   tData:
     objPosition: {x: 0, y: 0, z: 0}
     directPosition: {x: 0, y: 0, z: 0}
-    rotation: {x: 0, y: 0, z: 0}
+    vRotation: 0
+    hRotation: 0
     speed: {x: 0, y: 0, z: 0}
     force: 30
   CheckMask:
@@ -4831,7 +4833,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0, y: 0, z: -0, w: 1}
-  m_LocalPosition: {x: 14.756083, y: 0, z: -2.3580787}
+  m_LocalPosition: {x: 18, y: 0, z: 32}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1165457254}
@@ -4849,6 +4851,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7bcb1350758be5b498ff08c235dd1f54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  preLaunchRotation: {x: 0, y: 0, z: 0}
   offset: {x: 18, y: 0, z: -32}
 --- !u!1 &969363042
 GameObject:
@@ -5759,15 +5762,15 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1165457253}
-  m_LocalRotation: {x: 0, y: 0.074369594, z: 0, w: 0.99723077}
-  m_LocalPosition: {x: 0, y: 14, z: -34.6}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 14, z: 0}
   m_LocalScale: {x: 1, y: 1, z: -1}
   m_Children:
   - {fileID: 963194228}
   - {fileID: 381449715}
   m_Father: {fileID: 0}
   m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 8.53, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1165457255
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10820,7 +10823,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 919132149223140943}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.7800001, y: 0, z: -11.839999}
+  m_LocalPosition: {x: 0, y: 0, z: -11.998083}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 3745622628549488528}

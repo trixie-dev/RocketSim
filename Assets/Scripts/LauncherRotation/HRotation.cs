@@ -14,7 +14,8 @@ public class HRotation : MonoBehaviour
     }
 
     private void Update() {
-        if(transform.localEulerAngles.y != HUD.hAngle.value) {
+        if(transform.localEulerAngles.y != HUD.hAngle.value
+            && !rocket.isLaunched && rocket != null) {
                 transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, HUD.hAngle.value, transform.localEulerAngles.z);
                 rocket.FixedTrajectoryValues();
             }

@@ -4,7 +4,8 @@ using UnityEngine;
 public struct TrajectoryData{
     public Vector3 objPosition;
     public Vector3 directPosition;
-    public Vector3 rotation;
+    public float vRotation;
+    public float hRotation;
     public Vector3 speed;
     public float force;
 }
