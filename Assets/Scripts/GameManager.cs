@@ -4,10 +4,12 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
     public Rocket rocket;
+    public DroneCamera drone;
     public Trajectory trajectory;
     public Explosion explosionScript;
     public HUD HUD;
     public int rocketCount;
+    public int rocketsNumbers;
     private void Awake()
     {
         if (GameManager.instance != null)

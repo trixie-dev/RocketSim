@@ -22,7 +22,7 @@ public class Target : MonoBehaviour
          
     }
     public void Hit(){
-        fire = Instantiate(fire, new Vector3(transform.position.x, transform.position.y, transform.position.z), Quaternion.Euler(-90, 0, 0));
+        fire = Instantiate(fire, new Vector3(transform.position.x, transform.position.y + transform.localScale.y/2, transform.position.z), Quaternion.Euler(-90, 0, 0));
         smoke = Instantiate(smoke, new Vector3(transform.position.x, transform.position.y, transform.position.z), Quaternion.Euler(-90, 0, 0));
         updatingPosition = true;
         float k = transform.localScale.x * transform.localScale.y * transform.localScale.z / capacity;

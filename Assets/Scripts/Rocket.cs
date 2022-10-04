@@ -1,8 +1,10 @@
+using System;
 using UnityEngine;
 
 public class Rocket : MonoBehaviour
 {
     private Rigidbody rb;
+    public int numberOfRocket;
     public ParticleSystem explosivePS;
     public float forceExplosion;
     public float radiusExplosion;
@@ -12,6 +14,7 @@ public class Rocket : MonoBehaviour
     public bool isLaunched = false;
 
     private Trajectory trajectory;
+    private DroneCamera drone;
     public bool showTrajectory;
     private Explosion explosionScript;
     public TrajectoryData tData = new TrajectoryData{};
@@ -24,20 +27,21 @@ public class Rocket : MonoBehaviour
         trajectory = GameManager.instance.trajectory;
         explosionScript = GetComponent<Explosion>();
         HUD = GameManager.instance.HUD;
+        drone = GameManager.instance.drone;
         HUD.launcherCoordinate.text = "own's coordinate: " + String(transform.position.x) + " x, " + String(transform.position.z) + " y";
         rb.useGravity = false;
     
     }
 
     private void Update(){
-
+        print(tData.speed.magnitude);
         showTrajectory = HUD.showTrajectory.isOn;
 
-        if(Physics.CheckSphere(direct.transform.position, 0.4f, CheckMask)){
-
+        if(Physics.CheckSphere(direct.transform.position, 4f, CheckMask)){
+            
             isLaunched = false;
 
-            HUD.rocketCount.text = (GameManager.instance.rocketCount - 1).ToString();
+            
             HUD.speed.text = "--";
             HUD.speed.color = Color.red;
             HUD.alt.text = "--";
@@ -45,12 +49,14 @@ public class Rocket : MonoBehaviour
             HUD.currTime.text = "--";
             HUD.currTime.color = Color.red;
             HUD.NoSignalPanel.GetComponent<CanvasGroup>().alpha = 1;
+            HUD.rocketCount.text = (GameManager.instance.rocketCount - 1).ToString();
 
             Instantiate(explosivePS, direct.transform.position, Quaternion.identity);
             explosivePS.Play();
             explosionScript.Explode(direct.transform, forceExplosion, radiusExplosion);
-            Destroy(gameObject);
+           
             trajectory.DestroyTrajectory();
+            Destroy(gameObject);
 
         }
         if(Input.GetKeyDown(KeyCode.Space))
@@ -63,6 +69,7 @@ public class Rocket : MonoBehaviour
             RotateToTrajectory(time+0.5f);
 
         }
+        
         else{
 
             if(transform.localEulerAngles.x != HUD.vAngle.value ||
@@ -102,7 +109,7 @@ public class Rocket : MonoBehaviour
         tData.speed = (tData.directPosition - tData.objPosition) * tData.force;
         HUD.forceText.text = String(tData.speed.magnitude) + "km/h";
         if(showTrajectory) trajectory.ShowStartTrajectory(tData.objPosition, tData.speed);
-        CalcStartData();
+        UpdateStartDataInHUD(CalcStartTime(), CalcStartDistance());
 
     }
 
@@ -113,13 +120,72 @@ public class Rocket : MonoBehaviour
         float time = 2 * tData.speed.magnitude*Mathf.Sin(-tData.rotation.x*Mathf.PI/180)/-Physics.gravity.y;
 
         HUD.distance.text = distance.ToString();
-        HUD.maxAlt.text = maxAlt.ToString();
-        HUD.time.text = time.ToString();
+        //HUD.maxAlt.text = maxAlt.ToString();
+        //HUD.time.text = time.ToString();
+
 
     }
 
 
     private string String(float num){
         return ((int)num).ToString();
+    }
+
+    private float CalcStartTime(){
+        if(drone.isFocused){
+            float ownHeight = transform.position.y;
+            float targetHeight = drone.targetHeight;
+            float sinA = Mathf.Sin(-tData.rotation.x * Mathf.PI / 180f);
+            float v0 = tData.speed.magnitude;
+            float g = - Physics.gravity.y;
+            float result;
+
+            if(ownHeight > targetHeight)
+                result = (v0 * sinA + Mathf.Sqrt(Mathf.Pow(v0, 2) * Mathf.Pow(sinA, 2) + Mathf.Abs(2 * g * (ownHeight - targetHeight)))) / g;
+            else
+                result = (v0 * sinA + Mathf.Sqrt(Mathf.Pow(v0, 2) * Mathf.Pow(sinA, 2) - Mathf.Abs(2 * g * (ownHeight - targetHeight)))) / g;
+            
+            return result;
+        }
+        
+        return -1488f;
+    }
+    private void UpdateStartDataInHUD(float time, float distance){
+
+        
+        
+        // distance
+        if(!drone.isFocused){
+            HUD.time.text = "no data";
+            HUD.distance.text = "no data";
+        }
+        else{
+
+            // time
+            if(float.IsNaN(time)) 
+                HUD.time.text = "NaN";
+            else
+                HUD.time.text = time.ToString();
+
+            HUD.distance.text = distance.ToString();
+        }
+        
+
+        
+    }
+    private float CalcStartDistance(){
+        float time = CalcStartTime();
+        if(drone.isFocused && time != -1488f){
+            float result = tData.speed.magnitude * Mathf.Cos(-tData.rotation.x * Mathf.PI / 180f) * time;
+            return result;
+        }
+        return -1488;
+    }
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        //Gizmos.DrawSphere(direct.transform.position, 4f);
+        Gizmos.DrawWireSphere(direct.transform.position, 4f);
     }
 }

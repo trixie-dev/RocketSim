@@ -10,6 +10,9 @@ public class DroneCamera : MonoBehaviour
     public float rotateSpeed;
     private HUD HUD;
     private ButtonScript button;
+    public RaycastHit hit;
+    public float targetHeight;
+    private Vector3 focusPoint = Vector3.zero;
     
     
     private void Start() {
@@ -31,6 +34,7 @@ public class DroneCamera : MonoBehaviour
             HUD.coordinate.text = "Coordinate: -- x, -- y";
             HUD.droneDistance.text = "Distance: -- m";
             HUD.cross.color = new Color(0.2f, 0.2f, 0.2f);
+            focusPoint = Vector3.zero;
         }
         float x = Input.GetAxis("Horizontal");
         float y = Input.GetAxis("Vertical");
@@ -49,21 +53,19 @@ public class DroneCamera : MonoBehaviour
         Ray ray = new Ray(transform.position, transform.forward * 1000);
         Debug.DrawLine(transform.position, transform.position + transform.forward * 1000, Color.red);
 
-        RaycastHit hit;
         if(Physics.Raycast(ray, out hit, 1000))
             HUD.cross.color = new Color(1f, 0f, 0f);
-            HUD.coordinate.text = "Coordinate: " + ((int)hit.transform.position.x).ToString() + " x, " + ((int)hit.transform.position.z).ToString() + " y";
+            HUD.coordinate.text = "Coordinate: " + ((int)hit.point.x).ToString() + " x, " + ((int)hit.point.z).ToString() + " y";
             HUD.droneDistance.text = "Distance: " + ((int)hit.distance).ToString() + " m";
-            return hit.transform.position;
+            targetHeight = hit.point.y;
+            return hit.point;
         
 
     }
     public void focus(bool isFocused){
         if(isFocused) {
-            Vector3 position = SetFocus();
-            if(position != Vector3.zero) 
-                transform.LookAt(position);
-                
+            if(focusPoint == Vector3.zero) focusPoint = SetFocus();
+            transform.LookAt(focusPoint);             
         }
     }
     public void CamRotate(string direction){
